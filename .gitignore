@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Python compiled cache
+*.py[cd]
+
+# VS code stuff
+.theia/
