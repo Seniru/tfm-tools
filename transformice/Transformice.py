@@ -6,6 +6,10 @@ import aiotfm
 import asyncio
 import json
 
+import dotenv
+
+dotenv.load_dotenv()
+
 API_ID = os.getenv("ID")
 API_TOKEN = os.getenv("TOKEN")
 
@@ -25,9 +29,7 @@ class Bot(aiotfm.Client):
 		if not handled: # Add compatibility to more packets
 			CCC = packet.readCode()
 
-			if CCC == (60, 4): # Tribulle V2 enabled
-				pass
-
+	
 	def run(self):
 		self.loop.run_until_complete(self.start(API_ID, API_TOKEN))
 
