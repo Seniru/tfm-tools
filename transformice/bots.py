@@ -16,8 +16,8 @@ PORT = os.getenv("SOCK_PORT") or 4242
 main_loop = Transformice.loop
 
 bots = [
-    Transformice.Bot("Aaaaaa#4087", "chukki@12", "#castle"),
-    Transformice.Bot("Senirupasan#0000", os.getenv("PASSWORD"), "#castle"),
+    Transformice.Bot("Mapabot#1302", os.getenv("PASSWORD")),
+    Transformice.Bot("Mapa_bot#9725", os.getenv("PASSWORD")),
 ]
 
 distributor = Distributor(bots)
@@ -27,7 +27,7 @@ async def create_connection_main():
     reader, writer = await asyncio.open_connection(HOST, PORT, loop=main_loop)
 
     writer.write(
-        bytes(json.dumps({"id": 1, "secret": "gjfj"}), encoding="utf-8"))
+        bytes(json.dumps({"id": 1, "secret": os.getenv("CONNECTION_SECRET")}), encoding="utf-8"))
     await writer.drain()
 
     while True:
@@ -42,10 +42,11 @@ async def create_connection_main():
             print(data)
             continue
 
-        if struct["id"] == 2:
+        if struct["id"] == 1:
+            print("[INFO] Successful connection to the main server!")
+        elif struct["id"] == 2:
             try:
-                await distributor.sendRoomMessage("hello world im sad")
-                await distributor.sendRoomMessage("!{}".format(struct["body"]))
+                await distributor.sendRoomMessage("!np {}".format(struct["body"]))
                 connection, packet = await distributor.wait_for("on_raw_socket", lambda connection, packet: packet.readCode() == (5, 2), timeout=5)
                 res = {}
                 res["code"] = packet.read32()
@@ -55,12 +56,17 @@ async def create_connection_main():
                 res["perm"] = packet.read8()
                 res["_ref"] = struct["_ref"]
                 res["id"] = 2
-                print(res)
-                print(json.dumps(res))
+                res["status"] = 1
                 writer.write(bytes(json.dumps(res), encoding="utf-8"))
                 await writer.drain()
             except asyncio.exceptions.TimeoutError:
-                print("Timed out!")
+                print("[ERROR] Timed out at loading {}".format(struct["body"]))
+                writer.write(bytes(json.dumps({
+                    "id": 2,
+                    "status": -1,
+                    "reason": "timedout",
+                    "_ref": struct["_ref"] 
+                }), encoding="utf-8"))
             distributor.switch()
 
 for bot in bots:

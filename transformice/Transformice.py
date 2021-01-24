@@ -16,12 +16,12 @@ API_TOKEN = os.getenv("TOKEN")
 loop = asyncio.get_event_loop()
 
 class Bot(aiotfm.Client):
-	def __init__(self, name, password, start_room="*#pewpew", community=0):
+	def __init__(self, name, password, start_room=None, community=0):
 		super().__init__(community, True, loop=loop)
 		self.pid = 0
 		self.username = name
 		self.password = password
-		self.start_room = start_room
+		self.start_room = start_room or f"*#castle@{name}"
 
 	async def handle_packet(self, conn, packet):
 		handled = await super().handle_packet(conn, packet.copy())
