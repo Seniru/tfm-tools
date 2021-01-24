@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/Seniru/tfm-tools/issues"
   },
+  "engines": {
+    "node": "14.x"
+  },
   "homepage": "https://github.com/Seniru/tfm-tools#readme"
 }
