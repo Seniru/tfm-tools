@@ -17,7 +17,7 @@ handler[2] = (req, res, msg, struct) => { // map service
     if (req.path.includes("preview")) {
                     
         if (struct.status == -1) {
-            return res.sendFile("./images/map-error.png", { root: path.join(__dirname, 'public') })
+            return res.sendFile("map-error.png", { root: path.join(__dirname, "public", "images") })
         }
 
         fetch("https://miceditor-map-preview.herokuapp.com/", { 
