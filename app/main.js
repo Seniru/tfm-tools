@@ -1,5 +1,6 @@
 const fetch = require("node-fetch") 
 const express = require("express")
+const path = require("path")
 
 require("dotenv").config()
 
@@ -10,6 +11,10 @@ const app = express()
 sockServer.reqs = []
 
 const server = app.listen(process.env.SERVER_PORT || 6666)
+
+app.use(express.static(__dirname))
+
+console.log(process.cwd())
 
 app.get(["/map/:code", "/map/:code/preview"], (req, res) => {
     let code = req.params.code?.match(/@?(\d+)/)[1]

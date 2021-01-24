@@ -7,6 +7,7 @@ import zlib
 
 import Transformice
 from distributive import Distributor
+from handler import handler
 
 dotenv.load_dotenv()
 
@@ -22,7 +23,6 @@ bots = [
 
 distributor = Distributor(bots)
 
-
 async def create_connection_main():
     reader, writer = await asyncio.open_connection(HOST, PORT, loop=main_loop)
 
@@ -34,40 +34,14 @@ async def create_connection_main():
         data = await reader.read(100)
         data = data.decode("ascii")
         struct = {}
-        print(data)
 
         try:
             struct = json.loads(data)
-        except Exception:
-            print(data)
+        except Exception as e:
+            print("[FATAL] Error occured!\n{e}")
             continue
 
-        if struct["id"] == 1:
-            print("[INFO] Successful connection to the main server!")
-        elif struct["id"] == 2:
-            try:
-                await distributor.sendRoomMessage("!np {}".format(struct["body"]))
-                connection, packet = await distributor.wait_for("on_raw_socket", lambda connection, packet: packet.readCode() == (5, 2), timeout=5)
-                res = {}
-                res["code"] = packet.read32()
-                packet.read8(), packet.read16(), packet.read16()  # mice count, round, ??
-                res["xml"] = zlib.decompress(packet.readString()).decode("utf-8")
-                res["author"] = packet.readUTF()
-                res["perm"] = packet.read8()
-                res["_ref"] = struct["_ref"]
-                res["id"] = 2
-                res["status"] = 1
-                writer.write(bytes(json.dumps(res), encoding="utf-8"))
-                await writer.drain()
-            except asyncio.exceptions.TimeoutError:
-                print("[ERROR] Timed out at loading {}".format(struct["body"]))
-                writer.write(bytes(json.dumps({
-                    "id": 2,
-                    "status": -1,
-                    "reason": "timedout",
-                    "_ref": struct["_ref"] 
-                }), encoding="utf-8"))
-            distributor.switch()
+        await handler[struct["id"]]((reader, writer), distributor, data, struct)
 
 for bot in bots:
     bot.run()

@@ -1,4 +1,5 @@
 const fetch = require("node-fetch")
+const path = require("path")
 
 const handler = {}
 
@@ -16,7 +17,7 @@ handler[2] = (req, res, msg, struct) => { // map service
     if (req.path.includes("preview")) {
                     
         if (struct.status == -1) {
-            return res.redirect("https://nerdist.com/wp-content/uploads/2020/07/maxresdefault.jpg")
+            return res.sendFile("./images/map-error.png", { root: path.join(__dirname, 'public') })
         }
 
         fetch("https://miceditor-map-preview.herokuapp.com/", { 
