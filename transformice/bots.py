@@ -23,25 +23,33 @@ bots = [
 
 distributor = Distributor(bots)
 
+
 async def create_connection_main():
-    reader, writer = await asyncio.open_connection(HOST, PORT, loop=main_loop)
+    try:
+        reader, writer = await asyncio.open_connection(HOST, PORT, loop=main_loop)
 
-    writer.write(
-        bytes(json.dumps({"id": 1, "secret": os.getenv("CONNECTION_SECRET")}), encoding="utf-8"))
-    await writer.drain()
+        writer.write(bytes(json.dumps({"id": 1, "secret": os.getenv("CONNECTION_SECRET")}), encoding="utf-8"))
+        await writer.drain()
 
-    while True:
-        data = await reader.read(100)
-        data = data.decode("ascii")
-        struct = {}
+        while True:
+            data = await reader.read(100)
+            if not data:
+                raise ConnectionResetError("Connection has resetted!")
+            data = data.decode("ascii")
+            struct = {}
 
-        try:
-            struct = json.loads(data)
-        except Exception as e:
-            print("[FATAL] Error occured!\n{e}")
-            continue
+            try:
+                struct = json.loads(data)
+            except json.JSONDecodeError as e:
+                print(f"[FATAL] Error occured! ({e})")
+                continue
 
-        await handler[struct["id"]]((reader, writer), distributor, data, struct)
+            await handler[struct["id"]]((reader, writer), distributor, data, struct)
+    except Exception as e:
+        print(f"[FATAL] Error occured! ({e})")
+        time.sleep(20)
+        print("[INFO] Retrying connection...")
+        main_loop.run_until_complete(await create_connection_main())
 
 for bot in bots:
     bot.run()

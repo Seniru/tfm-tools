@@ -11,6 +11,10 @@ const sockServer = {}
 
 sockServer.connections = []
 
+sockServer.cache = {
+    maps: {}
+}
+
 sockServer.s = net.createServer(socket => {
 
     console.log("[INFO][SERVER|SOCKET] Received connection")
@@ -26,7 +30,18 @@ sockServer.s = net.createServer(socket => {
             let struct = JSON.parse(msg)
             let reqs = struct._ref !== null ? sockServer.reqs[struct._ref] : null
 
-            handler[struct.id](reqs?.req, reqs?.res, msg, struct, socket)
+            let res = handler[struct.id](reqs?.req, reqs?.res, msg, struct, socket)
+
+            if (res) {
+                if (typeof res?.then === "function") { // it's a proise!
+                    res.then(cache => {
+                        if (cache.type == "MAP_CACHE") {
+                            sockServer.cache.maps[cache.data["map"]] = cache.data["buffer"]
+                        }
+                    })
+                }
+            }
+
         } catch (e) {
             console.log(`[FATAL] Error at socket@data\n${e}` )
         }

@@ -1,6 +1,5 @@
-const fetch = require("node-fetch") 
 const express = require("express")
-const path = require("path")
+const morgan = require("morgan")
 
 require("dotenv").config()
 
@@ -13,11 +12,14 @@ sockServer.reqs = []
 const server = app.listen(process.env.SERVER_PORT || 6666)
 
 app.use(express.static(__dirname))
-
-console.log(process.cwd())
+app.use(morgan("[INFO][SERVER|MAIN] :method :url <:status> (User-Agent: :user-agent)"))
 
 app.get(["/map/:code", "/map/:code/preview"], (req, res) => {
     let code = req.params.code?.match(/@?(\d+)/)[1]
+    if (sockServer.cache.maps[code]) {
+        console.log(sockServer.cache.maps[code])
+        return res.end(Buffer.from(sockServer.cache.maps[code]["buffer"]))
+    }
     sockServer.connections[0].write(JSON.stringify({ id: 2, body: code, _ref: sockServer.reqs.length }))
     sockServer.reqs.push({ req, res })
 })
