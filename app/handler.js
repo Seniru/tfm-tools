@@ -38,9 +38,7 @@ handler[2] = async (req, res, msg, struct) => { // map service
                 raw: true
             })
         })
-
-
-        
+    
         let mapImageBuffer = await mapImage.buffer()
 
         let canvas = Canvas.createCanvas(length, height)
@@ -48,24 +46,10 @@ handler[2] = async (req, res, msg, struct) => { // map service
         let map = new Canvas.Image()
 
         map.src = mapImageBuffer
-        
-        let { name, tag } = utils.extractNicknameData(struct.author)
+
         ctx.drawImage(map, 0, 0)
-        ctx.font = "20px soopafresh"
-        ctx.fillStyle = "rgba(47,127,204,1.0)"
-        let nameText = ctx.measureText(name)
-        ctx.fillText(name, 40, 30)
-        ctx.font = "20px soopafresh"
-        ctx.strokeText(name, 40, 30)
-        if (tag) {
-            ctx.font = "14px soopafresh"
-            ctx.fillStyle = "rgba(108,119,193,1.0)"
-            ctx.fillText(tag, 42 + nameText.width, 30)
-            ctx.font = "14px soopafresh"
-            ctx.strokeText(tag, 42 + nameText.width, 30)
-        }
-        let permIcon = await Canvas.loadImage(`./app/public/images/P${struct.perm || 41}.png`)
-        ctx.drawImage(permIcon, 10, 10, 20, 20)
+        if (req.query.infobar) await utils.setMapInfoBar(ctx, map, struct.author, struct.perm)
+        
         let imageBuffer = canvas.toBuffer()
         res.end(imageBuffer)
         let cache =  { type: "MAP_CACHE", data: { map: struct.code, buffer: imageBuffer } }
