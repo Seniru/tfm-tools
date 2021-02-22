@@ -17,7 +17,6 @@ app.use(morgan("[INFO][SERVER|MAIN] :method :url <:status> (User-Agent: :user-ag
 app.get(["/map/:code", "/map/:code/preview"], (req, res) => {
     let code = req.params.code?.match(/@?(\d+)/)[1]
     if (sockServer.cache.maps[code]) {
-        console.log(sockServer.cache.maps[code])
         return res.end(Buffer.from(sockServer.cache.maps[code]["buffer"]))
     }
     sockServer.connections[0].write(JSON.stringify({ id: 2, body: code, _ref: sockServer.reqs.length }))

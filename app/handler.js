@@ -1,6 +1,7 @@
 const fetch = require("node-fetch")
 const path = require("path")
 const Canvas = require("canvas")
+const parser = require("fast-xml-parser")
 
 const utils = require("./utils")
 
@@ -25,6 +26,10 @@ handler[2] = async (req, res, msg, struct) => { // map service
             return res.sendFile("map-error.png", { root: path.join(__dirname, "public", "images") })
         }
         
+        let parsed = parser.parse(struct.xml, { ignoreAttributes: false })
+        let height = Number(parsed?.C?.P?.["@_H"]) || 400
+        let length = Number(parsed?.C?.P?.["@_L"]) || 800
+
         let mapImage = await fetch("https://miceditor-map-preview.herokuapp.com/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -33,9 +38,12 @@ handler[2] = async (req, res, msg, struct) => { // map service
                 raw: true
             })
         })
+
+
+        
         let mapImageBuffer = await mapImage.buffer()
 
-        let canvas = Canvas.createCanvas(800, 400)
+        let canvas = Canvas.createCanvas(length, height)
         let ctx = canvas.getContext("2d")
         let map = new Canvas.Image()
 
