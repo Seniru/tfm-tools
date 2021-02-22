@@ -1,6 +1,7 @@
 # Base code copied from aiotfm/advanced_bot.py
 
 import os
+import time
 
 import aiotfm
 import asyncio
@@ -17,7 +18,7 @@ loop = asyncio.get_event_loop()
 
 class Bot(aiotfm.Client):
 	def __init__(self, name, password, start_room=None, community=0):
-		super().__init__(community, True, loop=loop)
+		super().__init__(community, True, True, loop)
 		self.pid = 0
 		self.username = name
 		self.password = password
@@ -30,8 +31,8 @@ class Bot(aiotfm.Client):
 			CCC = packet.readCode()
 
 	
-	def run(self):
-		self.loop.run_until_complete(self.start(API_ID, API_TOKEN))
+	async def run(self):
+		self.loop.create_task(self.start())
 
 	async def on_login_ready(self, online_players, community, country):
 		print("[INFO][BOT-{name}][{country}-{commu}] Login ready... ".format(name=self.username, country=country, commu=community))

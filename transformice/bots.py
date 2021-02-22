@@ -28,7 +28,8 @@ async def create_connection_main():
     try:
         reader, writer = await asyncio.open_connection(HOST, PORT, loop=main_loop)
 
-        writer.write(bytes(json.dumps({"id": 1, "secret": os.getenv("CONNECTION_SECRET")}), encoding="utf-8"))
+        writer.write(bytes(json.dumps(
+            {"id": 1, "secret": os.getenv("CONNECTION_SECRET")}), encoding="utf-8"))
         await writer.drain()
 
         while True:
@@ -52,9 +53,9 @@ async def create_connection_main():
         main_loop.run_until_complete(await create_connection_main())
 
 for bot in bots:
-    bot.run()
+    main_loop.create_task(bot.run())
     # wait for few seconds before connecting another bot to not get ip-banned
-    time.sleep(10)
+    main_loop.run_until_complete(asyncio.sleep(10))
 
 main_loop.run_until_complete(create_connection_main())
 
