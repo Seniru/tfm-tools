@@ -33,7 +33,8 @@ async def create_connection_main():
         await writer.drain()
 
         while True:
-            data = await reader.read(100)
+            data = await reader.readuntil(separator=b"\x00")
+            data = data[:-1]
             if not data:
                 raise ConnectionResetError("Connection has resetted!")
             data = data.decode("ascii")
@@ -42,7 +43,7 @@ async def create_connection_main():
             try:
                 struct = json.loads(data)
             except json.JSONDecodeError as e:
-                print(f"[FATAL] Error occured! ({e})")
+                print(f"[FATAL] Error occured! ({e})", "Socket data:", data)
                 continue
 
             await handler[struct["id"]]((reader, writer), distributor, data, struct)

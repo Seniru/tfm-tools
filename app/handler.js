@@ -52,7 +52,7 @@ handler[2] = async (req, res, msg, struct) => { // map service
         
         let imageBuffer = canvas.toBuffer()
         res.end(imageBuffer)
-        let cache =  { type: "MAP_CACHE", data: { map: struct.code, buffer: imageBuffer } }
+        let cache =  { type: "MAP_CACHE", data: { map: struct.code, buffer: mapImageBuffer } }
         return cache
         
     } else {

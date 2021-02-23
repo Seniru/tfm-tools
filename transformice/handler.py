@@ -1,10 +1,12 @@
 import functools
+import time
 
 import asyncio
 import zlib
 import json
 
 handler = {}
+
 
 def handle_struct(identifier):
     def decorator(f):
@@ -25,7 +27,16 @@ async def on_validation(*args):
 @handle_struct(2)
 async def retrieve_maps(connection, distributor, data, struct):
     reader, writer = connection
+    distributor.switch()
     try:
+        distributor.active.busy = True
+
+        async def free_bot(bot):
+            time.sleep(3)
+            bot.busy = False
+
+        distributor.active.loop.create_task(free_bot(distributor.active))
+
         await distributor.sendRoomMessage("!np {}".format(struct["body"]))
         connection, packet = await distributor.wait_for("on_raw_socket", lambda connection, packet: packet.readCode() == (5, 2), timeout=5)
         res = {}
@@ -47,4 +58,3 @@ async def retrieve_maps(connection, distributor, data, struct):
             "reason": "timedout",
             "_ref": struct["_ref"]
         }), encoding="utf-8"))
-    distributor.switch()

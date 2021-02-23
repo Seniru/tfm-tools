@@ -19,7 +19,7 @@ app.get(["/map/:code", "/map/:code/preview"], (req, res) => {
     if (sockServer.cache.maps[code]) {
         return res.end(Buffer.from(sockServer.cache.maps[code]["buffer"]))
     }
-    sockServer.connections[0].write(JSON.stringify({ id: 2, body: code, _ref: sockServer.reqs.length }))
+    sockServer.connections[0].write(JSON.stringify({ id: 2, body: code, _ref: sockServer.reqs.length }) + "\x00")
     sockServer.reqs.push({ req, res })
 })
 
