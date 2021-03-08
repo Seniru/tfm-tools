@@ -12,7 +12,7 @@ from handler import handler
 
 dotenv.load_dotenv()
 
-HOST = "127.0.0.1"
+HOST = os.getenv("HOST") or "127.0.0.1"
 PORT = os.getenv("SOCK_PORT") or 4242
 
 main_loop = Transformice.loop
