@@ -13,7 +13,7 @@ handler[1] = (req, res, msg, struct, connection) => { // connection validation
     if (struct.secret == process.env.CONNECTION_SECRET) {
         connection.connectionValidated = true
         console.log("[INFO] Connection to the bots has been validated!")
-        connection.write(JSON.stringify({ id: 1, validated: true }))
+        connection.write(JSON.stringify({ id: 1, validated: true }) + "\x00")
     } else {
         connection.end() // close the connection if the keys doesn't match
     }
@@ -59,6 +59,16 @@ handler[2] = async (req, res, msg, struct) => { // map service
         if (struct.status == -1) return res.status(400).send(struct.reason)
         res.end(msg)
     }
+}
+
+handler[3] = (req, res, msg, struct) => {
+    console.log("handling throught hsere")
+    let lboardStruct = struct["leaderboard"]
+    let lboard = []
+    for (let leaders of lboardStruct.split("|")) {
+        lboard.push(leaders.split(","))
+    }
+    res.end(JSON.stringify(lboard))
 }
 
 module.exports = handler

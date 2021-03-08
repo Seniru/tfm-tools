@@ -25,12 +25,22 @@ class Bot(aiotfm.Client):
         self.password = password
         self.start_room = start_room or f"*#castle@{name}"
         self.busy = False
+        self.message_buffer = ""
 
     async def handle_packet(self, conn, packet):
         handled = await super().handle_packet(conn, packet.copy())
 
         if not handled:  # Add compatibility to more packets
             CCC = packet.readCode()
+
+            if CCC == (6, 9): # HTML message
+                message = packet.readUTF()
+                if message[0:2] == "\r\n":
+                    self.message_buffer += message[2:]
+                elif message == "\x1a":
+                    self.dispatch("buffered_message", self.message_buffer)
+                    self.message_buffer = ""
+
 
     async def run(self):
         self.loop.create_task(self.start())

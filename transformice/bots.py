@@ -4,6 +4,7 @@ import asyncio
 import dotenv
 import json
 import zlib
+import traceback
 
 import Transformice
 from distributive import Distributor
@@ -49,6 +50,7 @@ async def create_connection_main():
             await handler[struct["id"]]((reader, writer), distributor, data, struct)
     except Exception as e:
         print(f"[FATAL] Error occured! ({e})")
+        print(traceback.print_exc())
         time.sleep(20)
         print("[INFO] Retrying connection...")
         main_loop.run_until_complete(await create_connection_main())

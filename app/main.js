@@ -23,4 +23,9 @@ app.get(["/map/:code", "/map/:code/preview"], (req, res) => {
     sockServer.reqs.push({ req, res })
 })
 
+app.get("/pewpew/leaderboard", (req, res) => {
+    sockServer.connections[0].write(JSON.stringify({ id: 3, _ref: sockServer.reqs.length }) + "\x00")
+    sockServer.reqs.push({ req, res })
+})
+
 sockServer.s.listen(process.env.SOCK_PORT || 4242)
