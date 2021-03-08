@@ -9,7 +9,7 @@ const app = express()
 
 sockServer.reqs = []
 
-const server = app.listen(process.env.SERVER_PORT || 6666)
+const server = app.listen(process.env.PORT || 6666)
 
 app.use(express.static(__dirname))
 app.use(morgan("[INFO][SERVER|MAIN] :method :url <:status> (User-Agent: :user-agent)"))
