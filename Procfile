@@ -1,2 +1,2 @@
-server: node app/main
+web: node app/main
 bot: ./transformice/run.sh
